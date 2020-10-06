@@ -6,6 +6,7 @@ import { selectors } from "services/auth";
 
 import SignInPage from "./SignInPage";
 import ListsOverviewPage from "./ListsOverviewPage";
+import TodosPage from "./TodosPage";
 
 function LoginRouting() {
   return (
@@ -20,8 +21,11 @@ function LoginRouting() {
 function AppRouting() {
   return (
     <Switch>
-      <Route path="/">
+      <Route exact path="/">
         <ListsOverviewPage />
+      </Route>
+      <Route exact path="/:listId">
+        <TodosPage />
       </Route>
     </Switch>
   );

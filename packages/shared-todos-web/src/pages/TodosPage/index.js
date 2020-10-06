@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import shortid from "shortid";
 
+import AppLayout from "components/AppLayout";
 import {
   selectors as listsSelectors,
   actions as listsActions,
 } from "services/lists";
-import AppLayout from "components/AppLayout";
 import useDialog from "hooks/useDialog";
 
-function CreateListDialog({ close }) {
+function CreateTodoDialog({ close }) {
   const [title, setTitle] = useState("");
 
   return (
@@ -30,9 +30,13 @@ function CreateListDialog({ close }) {
   );
 }
 
-function ListsOverviewPage() {
+function TodosPage() {
+  const { listId } = useParams();
+
   const dispatch = useDispatch();
-  const lists = useSelector(listsSelectors.getLists);
+  const list = useSelector((state) => listsSelectors.getList(state, listId));
+  const todos = useSelector((state) => listsSelectors.getTodos(state, listId));
+
   const createDialog = useDialog();
 
   async function handleOpenCreateDialog() {
@@ -41,28 +45,28 @@ function ListsOverviewPage() {
     if (!result) return;
 
     dispatch(
-      listsActions.addList({ id: shortid.generate(), title: result.title })
+      listsActions.addTodo({
+        listId,
+        id: shortid.generate(),
+        title: result.title,
+      })
     );
   }
 
-  async function handleRemove(id) {
-    dispatch(listsActions.removeList(id));
-  }
-
   return (
-    <AppLayout title="lists overview">
-      <button onClick={handleOpenCreateDialog}>create list</button>
+    <AppLayout title="todos">
+      <div>{list.title}</div>
+      <button onClick={handleOpenCreateDialog}>create todo</button>
       <div>
-        {lists.map((item) => (
-          <div key={item.id}>
-            <span>{item.id}</span> <Link to={`/${item.id}`}>{item.title}</Link>
-            <button onClick={() => handleRemove(item.id)}>remove</button>
+        {todos.map((todo) => (
+          <div key={todo.id}>
+            <span>{todo.id}</span> <span>{todo.title}</span>
           </div>
         ))}
       </div>
-      {createDialog.isOpen && <CreateListDialog {...createDialog} />}
+      {createDialog.isOpen && <CreateTodoDialog {...createDialog} />}
     </AppLayout>
   );
 }
 
-export default ListsOverviewPage;
+export default TodosPage;

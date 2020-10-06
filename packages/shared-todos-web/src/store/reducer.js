@@ -4,9 +4,11 @@ import {
   actions as authActions,
   reducer as authReducer,
 } from "../services/auth";
+import { reducer as listsReducer } from "../services/lists";
 
 const combinedRootReducer = combineReducers({
   auth: authReducer,
+  lists: listsReducer,
 });
 
 function rootReducer(state, action) {

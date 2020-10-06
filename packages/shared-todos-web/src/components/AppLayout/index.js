@@ -6,7 +6,7 @@ import {
   actions as authActions,
 } from "services/auth";
 
-function AppLayout({ children }) {
+function AppLayout({ children, title }) {
   const dispatch = useDispatch();
   const userProfile = useSelector(authSelectors.getUserProfile);
 
@@ -21,9 +21,8 @@ function AppLayout({ children }) {
         <img width={48} height={48} src={userProfile.picture} alt="" />
         <button onClick={logout}>logout</button>
       </div>
-      <div>
-        {children}
-      </div>
+      {title && <div><strong>{title}</strong></div>}
+      <div>{children}</div>
     </div>
   );
 }
