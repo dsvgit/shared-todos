@@ -3,5 +3,10 @@
   "workspaces": [
     "packages/shared-todos-firbase/shared-todos-functions",
     "packages/shared-todos-web"
-  ]
+  ],
+  "scripts": {
+    "web:start": "yarn workspace shared-todos-web start",
+    "web:build": "yarn workspace shared-todos-web build",
+    "firebase:deploy": "yarn workspace shared-todos-functions deploy"
+  }
 }
