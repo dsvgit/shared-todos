@@ -1,4 +1,5 @@
 {
+  "homepage": "https://dsvgit.github.io/shared-todos",
   "name": "shared-todos-web",
   "version": "0.1.0",
   "private": true,
