@@ -7,6 +7,7 @@
   "scripts": {
     "web:start": "yarn workspace shared-todos-web start",
     "web:build": "yarn workspace shared-todos-web build",
+    "web:deploy": "git subtree push --prefix packages/shared-todos-web/build origin gh-pages",
     "firebase:deploy": "yarn workspace shared-todos-functions deploy"
   }
 }
