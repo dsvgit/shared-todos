@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import shortid from "shortid";
 
@@ -55,6 +55,7 @@ function TodosPage() {
 
   return (
     <AppLayout title="todos">
+      <Link to="/">{'<--'} back</Link>
       <div>{list.title}</div>
       <button onClick={handleOpenCreateDialog}>create todo</button>
       <div>
