@@ -22,5 +22,5 @@ export const FetchProvider = (props) => {
     },
   };
 
-  return <Provider url={config.API_HOST} options={fetchOptions} {...props} />;
+  return <Provider url={config.apiHost} options={fetchOptions} {...props} />;
 };

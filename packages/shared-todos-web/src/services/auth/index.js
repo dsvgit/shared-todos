@@ -32,7 +32,7 @@ const slice = createSlice({
 
       state.isAuthenticated = true;
       state.accessToken = accessToken;
-      state.userProfile = userProfile;
+      state.userProfile = { ...userProfile }; // should be a plain object
       state.userProfile.email = email;
     },
     logout() {
