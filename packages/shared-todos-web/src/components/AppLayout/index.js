@@ -18,10 +18,12 @@ function AppLayout({ children }) {
     <div>
       <div>
         <div>{userProfile.name}</div>
-        <img src={userProfile.picture} alt="" />
+        <img width={48} height={48} src={userProfile.picture} alt="" />
         <button onClick={logout}>logout</button>
       </div>
-      {children}
+      <div>
+        {children}
+      </div>
     </div>
   );
 }
