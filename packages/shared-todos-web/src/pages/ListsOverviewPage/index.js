@@ -1,17 +1,18 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
-import { selectors } from "services/auth";
+import { selectors as authSelectors } from "services/auth";
+import AppLayout from "components/AppLayout";
 
 function ListsOverviewPage() {
-  const userProfile = useSelector(selectors.getUserProfile);
+  const userProfile = useSelector(authSelectors.getUserProfile);
 
   return (
-    <div>
+    <AppLayout>
       <pre>
         <code>{JSON.stringify(userProfile, null, 2)}</code>
       </pre>
-    </div>
+    </AppLayout>
   );
 }
 
