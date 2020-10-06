@@ -53,14 +53,23 @@ function TodosPage() {
     );
   }
 
+  function handleToggleTodo(id) {
+    dispatch(listsActions.toggleTodo(id));
+  }
+
   return (
     <AppLayout title="todos">
-      <Link to="/">{'<--'} back</Link>
+      <Link to="/">{"<--"} back</Link>
       <div>{list.title}</div>
       <button onClick={handleOpenCreateDialog}>create todo</button>
       <div>
         {todos.map((todo) => (
           <div key={todo.id}>
+            <input
+              type="checkbox"
+              checked={todo.isDone}
+              onChange={() => handleToggleTodo(todo.id)}
+            />
             <span>{todo.id}</span> <span>{todo.title}</span>
           </div>
         ))}

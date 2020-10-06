@@ -15,6 +15,7 @@ function rootReducer(state, action) {
   if (action.type === authActions.logout.toString()) {
     state = undefined;
     localStorage.removeItem("persist:auth");
+    localStorage.removeItem("persist:lists");
   }
 
   return combinedRootReducer(state, action);

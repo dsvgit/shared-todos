@@ -56,7 +56,12 @@ const slice = createSlice({
     addTodo(state, { payload }) {
       const item = payload;
 
-      state.entities.todos[item.id] = item;
+      state.entities.todos[item.id] = { ...item, isDone: false };
+    },
+    toggleTodo(state, { payload }) {
+      const id = payload;
+
+      state.entities.todos[id].isDone = !state.entities.todos[id].isDone;
     },
   },
 });
