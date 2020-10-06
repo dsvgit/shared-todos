@@ -1,9 +1,19 @@
-import React from 'react';
+import React from "react";
+import { Provider as ReduxProvider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
 
-function App() {
+import store, { persistor } from "./store";
+import Routing from "./pages/Routing";
+import {FetchProvider} from 'FetchProvider';
+
+export default function App() {
   return (
-    <div>shared todos</div>
+    <ReduxProvider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <FetchProvider>
+          <Routing />
+        </FetchProvider>
+      </PersistGate>
+    </ReduxProvider>
   );
 }
-
-export default App;

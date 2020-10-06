@@ -1,7 +1,7 @@
 {
   "private": true,
   "workspaces": [
-    "packages/shared-todos-firbase/shared-todos-functions",
+    "packages/shared-todos-firebase/functions",
     "packages/shared-todos-web"
   ],
   "scripts": {
