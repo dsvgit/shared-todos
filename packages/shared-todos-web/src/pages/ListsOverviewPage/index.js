@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import { Link } from "react-router-dom";
+import * as firebase from "firebase";
 
 import AppLayout from "components/AppLayout";
 import useDialog from "hooks/useDialog";
@@ -27,12 +28,12 @@ function CreateListDialog({ close }) {
 }
 
 function ListsOverviewPage() {
-  const { uid } = auth.currentUser;
+  const { uid, email } = auth.currentUser;
 
   const createDialog = useDialog();
 
   const listsRef = firestore.collection("lists");
-  const query = listsRef.where("uid", "==", uid);
+  const query = listsRef.where("shared", "array-contains", email);
 
   const [lists] = useCollectionData(query, { idField: "id" });
 
@@ -43,7 +44,9 @@ function ListsOverviewPage() {
 
     await listsRef.add({
       title: result.title,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       uid,
+      shared: [email],
     });
   }
 
