@@ -1,25 +1,11 @@
 import React from "react";
-import { useDispatch } from "react-redux";
-import { auth } from "firebase/app";
 
-import { googleAuthProvider } from "firebase-config";
-import { actions as authActions } from "services/auth";
+import { auth, googleAuthProvider } from "firebase-config";
 
 function SignInPage() {
-  const dispatch = useDispatch();
-
   async function signInWithGoogle() {
     try {
-      const result = await auth().signInWithPopup(googleAuthProvider);
-
-      dispatch(
-        authActions.login({
-          email: result.user.email,
-          userProfile: result.additionalUserInfo.profile,
-          accessToken: result.credential.accessToken
-        })
-      );
-
+      const result = await auth.signInWithPopup(googleAuthProvider);
       console.log(result);
     } catch (error) {
       console.error(error);
@@ -28,7 +14,7 @@ function SignInPage() {
 
   return (
     <div>
-      <button onClick={signInWithGoogle}>sign up with google</button>
+      <button onClick={signInWithGoogle}>Sign in with google</button>
     </div>
   );
 }

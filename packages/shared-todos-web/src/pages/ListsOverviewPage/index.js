@@ -1,14 +1,10 @@
 import React, { useState } from "react";
+import { useCollectionData } from "react-firebase-hooks/firestore";
 import { Link } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import shortid from "shortid";
 
-import {
-  selectors as listsSelectors,
-  actions as listsActions,
-} from "services/lists";
 import AppLayout from "components/AppLayout";
 import useDialog from "hooks/useDialog";
+import { auth, firestore } from "firebase-config";
 
 function CreateListDialog({ close }) {
   const [title, setTitle] = useState("");
@@ -31,34 +27,42 @@ function CreateListDialog({ close }) {
 }
 
 function ListsOverviewPage() {
-  const dispatch = useDispatch();
-  const lists = useSelector(listsSelectors.getLists);
+  const { uid } = auth.currentUser;
+
   const createDialog = useDialog();
 
-  async function handleOpenCreateDialog() {
+  const listsRef = firestore.collection("lists");
+  const query = listsRef.where("uid", "==", uid);
+
+  const [lists] = useCollectionData(query, { idField: "id" });
+
+  async function handleCreate() {
     const result = await createDialog.open();
 
     if (!result) return;
 
-    dispatch(
-      listsActions.addList({ id: shortid.generate(), title: result.title })
-    );
+    await listsRef.add({
+      title: result.title,
+      uid,
+    });
   }
 
   async function handleRemove(id) {
-    dispatch(listsActions.removeList(id));
+    await listsRef.doc(id).delete();
   }
 
   return (
     <AppLayout title="lists overview">
-      <button onClick={handleOpenCreateDialog}>create list</button>
+      <button onClick={handleCreate}>create list</button>
       <div>
-        {lists.map((item) => (
-          <div key={item.id}>
-            <span>{item.id}</span> <Link to={`/${item.id}`}>{item.title}</Link>
-            <button onClick={() => handleRemove(item.id)}>remove</button>
-          </div>
-        ))}
+        {lists &&
+          lists.map((item) => (
+            <div key={item.id}>
+              <span>{item.id}</span>{" "}
+              <Link to={`/${item.id}`}>{item.title}</Link>
+              <button onClick={() => handleRemove(item.id)}>remove</button>
+            </div>
+          ))}
       </div>
       {createDialog.isOpen && <CreateListDialog {...createDialog} />}
     </AppLayout>

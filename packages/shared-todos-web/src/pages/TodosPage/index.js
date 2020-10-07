@@ -1,14 +1,10 @@
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import shortid from "shortid";
 
 import AppLayout from "components/AppLayout";
-import {
-  selectors as listsSelectors,
-  actions as listsActions,
-} from "services/lists";
 import useDialog from "hooks/useDialog";
+import { auth, firestore } from "../../firebase-config";
+import { useCollectionData } from "react-firebase-hooks/firestore";
 
 function CreateTodoDialog({ close }) {
   const [title, setTitle] = useState("");
@@ -31,48 +27,50 @@ function CreateTodoDialog({ close }) {
 }
 
 function TodosPage() {
+  const { uid } = auth.currentUser;
   const { listId } = useParams();
-
-  const dispatch = useDispatch();
-  const list = useSelector((state) => listsSelectors.getList(state, listId));
-  const todos = useSelector((state) => listsSelectors.getTodos(state, listId));
 
   const createDialog = useDialog();
 
-  async function handleOpenCreateDialog() {
+  const todosRef = firestore.collection("todos");
+  const query = todosRef.where("uid", "==", uid).where("listId", "==", listId);
+
+  const [todos] = useCollectionData(query, { idField: "id" });
+
+  async function handleCreate() {
     const result = await createDialog.open();
 
     if (!result) return;
 
-    dispatch(
-      listsActions.addTodo({
-        listId,
-        id: shortid.generate(),
-        title: result.title,
-      })
-    );
+    await todosRef.add({
+      listId,
+      uid,
+      title: result.title,
+      isDone: false,
+    });
   }
 
-  function handleToggleTodo(id) {
-    dispatch(listsActions.toggleTodo(id));
+  async function handleToggleTodo(id, isDone) {
+    await todosRef.doc(id).update({ isDone: !isDone });
   }
 
   return (
     <AppLayout title="todos">
       <Link to="/">{"<--"} back</Link>
-      <div>{list.title}</div>
-      <button onClick={handleOpenCreateDialog}>create todo</button>
+      <div>{listId}</div>
+      <button onClick={handleCreate}>create todo</button>
       <div>
-        {todos.map((todo) => (
-          <div key={todo.id}>
-            <input
-              type="checkbox"
-              checked={todo.isDone}
-              onChange={() => handleToggleTodo(todo.id)}
-            />
-            <span>{todo.id}</span> <span>{todo.title}</span>
-          </div>
-        ))}
+        {todos &&
+          todos.map((todo) => (
+            <div key={todo.id}>
+              <input
+                type="checkbox"
+                checked={todo.isDone}
+                onChange={() => handleToggleTodo(todo.id, todo.isDone)}
+              />
+              <span>{todo.id}</span> <span>{todo.title}</span>
+            </div>
+          ))}
       </div>
       {createDialog.isOpen && <CreateTodoDialog {...createDialog} />}
     </AppLayout>

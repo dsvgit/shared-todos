@@ -1,8 +1,8 @@
 import React from "react";
-import { useSelector } from "react-redux";
 import { HashRouter as Router, Switch, Route } from "react-router-dom";
+import { useAuthState } from "react-firebase-hooks/auth";
 
-import { selectors } from "services/auth";
+import { auth } from "firebase-config";
 
 import SignInPage from "./SignInPage";
 import ListsOverviewPage from "./ListsOverviewPage";
@@ -32,9 +32,11 @@ function AppRouting() {
 }
 
 function Routing() {
-  const isAuthenticated = useSelector(selectors.isAuthenticated);
+  const [user, loading] = useAuthState(auth);
 
-  return <Router>{isAuthenticated ? <AppRouting /> : <LoginRouting />}</Router>;
+  return loading ? <div>loading...</div> : (
+    <Router>{user ? <AppRouting /> : <LoginRouting />}</Router>
+  );
 }
 
 export default Routing;

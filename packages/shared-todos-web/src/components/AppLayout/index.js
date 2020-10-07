@@ -1,27 +1,26 @@
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
 
-import {
-  selectors as authSelectors,
-  actions as authActions,
-} from "services/auth";
+import { auth } from "firebase-config";
 
 function AppLayout({ children, title }) {
-  const dispatch = useDispatch();
-  const userProfile = useSelector(authSelectors.getUserProfile);
+  const { name, photoURL } = auth.currentUser;
 
   function logout() {
-    dispatch(authActions.logout());
+    auth.signOut();
   }
 
   return (
     <div>
       <div>
-        <div>{userProfile.name}</div>
-        <img width={48} height={48} src={userProfile.picture} alt="" />
+        <div>{name}</div>
+        <img width={48} height={48} src={photoURL} alt="" />
         <button onClick={logout}>logout</button>
       </div>
-      {title && <div><strong>{title}</strong></div>}
+      {title && (
+        <div>
+          <strong>{title}</strong>
+        </div>
+      )}
       <div>{children}</div>
     </div>
   );
