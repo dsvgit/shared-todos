@@ -67,7 +67,7 @@ function TodosPage() {
   const [listDoc] = useDocument(firestore.doc(`lists/${listId}`));
   const list = listDoc && listDoc.data();
   const todosRef = firestore.collection("todos");
-  const query = todosRef.where("uid", "==", uid).where("listId", "==", listId);
+  const query = todosRef.where("listId", "==", listId);
 
   const [todos] = useCollectionData(query, { idField: "id" });
 
