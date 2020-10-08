@@ -1,28 +1,20 @@
 import React from "react";
-import { useCollectionData } from "react-firebase-hooks/firestore";
 import { Link } from "react-router-dom";
 import * as firebase from "firebase";
 
 import AppLayout from "components/AppLayout";
 import useDialog from "hooks/useDialog";
-import { auth, firestore } from "firebase-config";
-import CreateListDialog from "./CreateDialog";
-
-function useListsData(uid, email) {
-  const listsRef = firestore.collection("lists");
-  const query = listsRef.where("shared", "array-contains", email);
-
-  const [lists] = useCollectionData(query, { idField: "id" });
-
-  return [listsRef, lists];
-}
+import { auth } from "firebase-config";
+import CreateListDialog from "./CreateListDialog";
+import { getListsRef, useListsData } from "data";
 
 function ListsOverviewPage() {
   const { uid, email } = auth.currentUser;
 
   const createDialog = useDialog();
 
-  const [listsRef, lists] = useListsData(uid, email);
+  const listsRef = getListsRef();
+  const [lists] = useListsData(email);
 
   async function handleCreate() {
     const result = await createDialog.open();

@@ -1,61 +1,19 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment } from "react";
 import { useParams, Link } from "react-router-dom";
 
 import AppLayout from "components/AppLayout";
 import useDialog from "hooks/useDialog";
-import { auth, firestore } from "../../firebase-config";
-import { useDocument, useCollectionData } from "react-firebase-hooks/firestore";
+import { auth } from "firebase-config";
 import * as firebase from "firebase";
+import CreateTodoDialog from "./CreateTodoDialog";
+import ShareListDialog from "./ShareListDialog";
+import { getListsRef, getTodosRef, useListData, useTodosData } from "data";
 
-function CreateTodoDialog({ close }) {
-  const [title, setTitle] = useState("");
-
-  return (
-    <div>
-      <div>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      </div>
-      <div>
-        <button onClick={() => close({ title })}>create</button>
-        <button onClick={() => close()}>close</button>
-      </div>
-    </div>
-  );
-}
-
-function ShareListDialog({ listId, list, close }) {
-  const listsRef = firestore.collection("lists");
-  const [email, setEmail] = useState("");
-
-  async function handleShare() {
-    const shared = list.shared || [];
-    await listsRef.doc(listId).update({
-      shared: [...new Set([...shared, email])],
-    });
-
-    close();
-  }
-
-  return (
-    <div>
-      <div>
-        <input
-          type="text"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
-      <div>
-        <button onClick={() => handleShare()}>share</button>
-        <button onClick={() => close()}>close</button>
-      </div>
-    </div>
-  );
-}
+const {
+  serverTimestamp,
+  arrayUnion,
+  arrayRemove,
+} = firebase.firestore.FieldValue;
 
 function TodosPage() {
   const { uid } = auth.currentUser;
@@ -64,12 +22,11 @@ function TodosPage() {
   const createDialog = useDialog();
   const shareDialog = useDialog();
 
-  const [listDoc] = useDocument(firestore.doc(`lists/${listId}`));
-  const list = listDoc && listDoc.data();
-  const todosRef = firestore.collection("todos");
-  const query = todosRef.where("listId", "==", listId);
+  const listsRef = getListsRef();
+  const todosRef = getTodosRef();
 
-  const [todos] = useCollectionData(query, { idField: "id" });
+  const [todos] = useTodosData(listId);
+  const list = useListData(listId);
 
   async function handleCreate() {
     const result = await createDialog.open();
@@ -81,7 +38,7 @@ function TodosPage() {
       uid,
       title: result.title,
       isDone: false,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt: serverTimestamp(),
     });
   }
 
@@ -89,12 +46,26 @@ function TodosPage() {
     await todosRef.doc(id).update({ isDone: !isDone });
   }
 
-  async function handleShare() {
-    shareDialog.open();
+  async function handleOpenShareDialog() {
+    await shareDialog.open();
   }
 
-  async function handleUnshare() {
+  async function handleShare(email) {
+    await listsRef.doc(listId).update({
+      shared: arrayUnion(email),
+    });
 
+    shareDialog.close();
+  }
+
+  async function handleUnshare(email) {
+    if (auth.currentUser.email === email || list.uid !== uid) {
+      return;
+    }
+
+    await listsRef.doc(listId).update({
+      shared: arrayRemove(email),
+    });
   }
 
   return (
@@ -105,13 +76,18 @@ function TodosPage() {
           <div>{list.title}</div>
           {list.shared && (
             <div>
-              shared with: <i>{list.shared.join(", ")}</i>
+              shared with:{" "}
+              <i>
+                {list.shared.map((email) => (
+                  <span onClick={() => handleUnshare(email)}> {email} </span>
+                ))}
+              </i>
             </div>
           )}
         </Fragment>
       )}
       <button onClick={handleCreate}>create todo</button>
-      <button onClick={handleShare}>share</button>
+      <button onClick={handleOpenShareDialog}>share</button>
       <div>
         {todos &&
           todos.map((todo) => (
@@ -127,7 +103,7 @@ function TodosPage() {
       </div>
       {createDialog.isOpen && <CreateTodoDialog {...createDialog} />}
       {shareDialog.isOpen && (
-        <ShareListDialog {...shareDialog} listId={listId} list={list} />
+        <ShareListDialog {...shareDialog} onShare={handleShare} />
       )}
     </AppLayout>
   );
