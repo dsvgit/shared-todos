@@ -1,28 +1,43 @@
 import React from "react";
 
 import { auth } from "firebase-config";
+import { Button, Layout, Avatar, Row, Col, Typography } from "components";
 
-function AppLayout({ children, title }) {
-  const { name, photoURL } = auth.currentUser;
+function AppLayout({ children }) {
+  const { displayName, photoURL } = auth.currentUser;
 
   function logout() {
     auth.signOut();
   }
 
   return (
-    <div>
-      <div>
-        <div>{name}</div>
-        <img width={48} height={48} src={photoURL} alt="" />
-        <button onClick={logout}>logout</button>
-      </div>
-      {title && (
-        <div>
-          <strong>{title}</strong>
-        </div>
-      )}
-      <div>{children}</div>
-    </div>
+    <Layout style={{ backgroundColor: "white" }}>
+      <Layout.Header>
+        <Row justify="space-between">
+          <div>
+            <Typography style={{ color: "white" }} level={3}>
+              Shared Todos
+            </Typography>
+          </div>
+          <Row gutter={16}>
+            <Col>
+              <Avatar size={36} src={photoURL} />
+            </Col>
+            <Col>
+              <Typography style={{ color: "white" }} level={3}>
+                {displayName}
+              </Typography>
+            </Col>
+            <Col>
+              <Button onClick={logout}>logout</Button>
+            </Col>
+          </Row>
+        </Row>
+      </Layout.Header>
+      <Layout.Content style={{ padding: "25px", margin: "0 auto" }}>
+        <div style={{ width: 500 }}>{children}</div>
+      </Layout.Content>
+    </Layout>
   );
 }
 

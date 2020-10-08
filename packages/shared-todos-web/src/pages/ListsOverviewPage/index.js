@@ -1,28 +1,54 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import * as firebase from "firebase";
+import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
 
 import AppLayout from "components/AppLayout";
-import useDialog from "hooks/useDialog";
 import { auth } from "firebase-config";
-import CreateListDialog from "./CreateListDialog";
 import { getListsRef, useListsData } from "data";
+import { Button, List, Input, Col, Row } from "components";
+
+function Header({ onCreate }) {
+  const [title, setTitle] = useState("");
+
+  function handleCreate(title) {
+    if (title.trim() === '') {
+      return;
+    }
+
+    onCreate(title);
+    setTitle('');
+  }
+
+  return (
+    <Row gutter={16}>
+      <Col flex={1}>
+        <Input
+          placeholder="Add new list..."
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+      </Col>
+      <Col>
+        <Button
+          shape="circle"
+          icon={<PlusCircleOutlined />}
+          onClick={() => handleCreate(title)}
+        />
+      </Col>
+    </Row>
+  );
+}
 
 function ListsOverviewPage() {
   const { uid, email } = auth.currentUser;
 
-  const createDialog = useDialog();
-
   const listsRef = getListsRef();
   const [lists] = useListsData(email);
 
-  async function handleCreate() {
-    const result = await createDialog.open();
-
-    if (!result) return;
-
+  async function handleCreate(title) {
     await listsRef.add({
-      title: result.title,
+      title,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       uid,
       shared: [email],
@@ -35,18 +61,19 @@ function ListsOverviewPage() {
 
   return (
     <AppLayout title="lists overview">
-      <button onClick={handleCreate}>create list</button>
-      <div>
+      <List header={<Header onCreate={handleCreate} />} bordered>
         {lists &&
           lists.map((item) => (
-            <div key={item.id}>
-              <span>{item.id}</span>{" "}
+            <List.Item key={item.id}>
               <Link to={`/${item.id}`}>{item.title}</Link>
-              <button onClick={() => handleRemove(item.id)}>remove</button>
-            </div>
+              <Button
+                shape="circle"
+                icon={<DeleteOutlined />}
+                onClick={() => handleRemove(item.id)}
+              />
+            </List.Item>
           ))}
-      </div>
-      {createDialog.isOpen && <CreateListDialog {...createDialog} />}
+      </List>
     </AppLayout>
   );
 }
