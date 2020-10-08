@@ -1,0 +1,10 @@
+.site-tag-plus {
+  background: #fff !important;
+  border-style: dashed !important;
+}
+
+.tag-input {
+  width: 78px !important;
+  margin-right: 8px !important;
+  vertical-align: top !important;
+}

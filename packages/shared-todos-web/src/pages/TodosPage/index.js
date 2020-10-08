@@ -1,11 +1,24 @@
-import React, { Fragment } from "react";
-import { useParams, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useParams, useHistory } from "react-router-dom";
+import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import * as firebase from "firebase";
 
 import AppLayout from "components/AppLayout";
 import useDialog from "hooks/useDialog";
 import { auth } from "firebase-config";
-import * as firebase from "firebase";
-import CreateTodoDialog from "./CreateTodoDialog";
+import {
+  Button,
+  Col,
+  Input,
+  List,
+  PageHeader,
+  Row,
+  Checkbox,
+  Popover,
+  Descriptions,
+  Tag,
+  CreateTag,
+} from "components";
 import ShareListDialog from "./ShareListDialog";
 import { getListsRef, getTodosRef, useListData, useTodosData } from "data";
 
@@ -15,28 +28,57 @@ const {
   arrayRemove,
 } = firebase.firestore.FieldValue;
 
+function Header({ onCreate }) {
+  const [title, setTitle] = useState("");
+
+  function handleCreate(title) {
+    if (title.trim() === "") {
+      return;
+    }
+
+    onCreate(title);
+    setTitle("");
+  }
+
+  return (
+    <Row gutter={16}>
+      <Col flex={1}>
+        <Input
+          placeholder="Add new list..."
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onPressEnter={() => handleCreate(title)}
+        />
+      </Col>
+      <Col>
+        <Button
+          shape="circle"
+          icon={<PlusCircleOutlined />}
+          onClick={() => handleCreate(title)}
+        />
+      </Col>
+    </Row>
+  );
+}
+
 function TodosPage() {
   const { uid } = auth.currentUser;
   const { listId } = useParams();
+  const history = useHistory();
 
-  const createDialog = useDialog();
   const shareDialog = useDialog();
 
   const listsRef = getListsRef();
   const todosRef = getTodosRef();
 
   const [todos] = useTodosData(listId);
-  const list = useListData(listId);
+  const list = useListData(listId) || {};
 
-  async function handleCreate() {
-    const result = await createDialog.open();
-
-    if (!result) return;
-
+  async function handleCreate(title) {
     await todosRef.add({
       listId,
       uid,
-      title: result.title,
+      title,
       isDone: false,
       createdAt: serverTimestamp(),
     });
@@ -44,6 +86,10 @@ function TodosPage() {
 
   async function handleToggleTodo(id, isDone) {
     await todosRef.doc(id).update({ isDone: !isDone });
+  }
+
+  async function handleRemove(id) {
+    await todosRef.doc(id).delete();
   }
 
   async function handleOpenShareDialog() {
@@ -70,41 +116,47 @@ function TodosPage() {
 
   return (
     <AppLayout title="todos">
-      <Link to="/">{"<--"} back</Link>
-      {list && (
-        <Fragment>
-          <div>{list.title}</div>
-          {list.shared && (
-            <div>
-              shared with:{" "}
-              <i>
-                {list.shared.map((email) => (
-                  <span onClick={() => handleUnshare(email)}> {email} </span>
-                ))}
-              </i>
-            </div>
-          )}
-        </Fragment>
-      )}
-      <button onClick={handleCreate}>create todo</button>
-      <button onClick={handleOpenShareDialog}>share</button>
-      <div>
-        {todos &&
-          todos.map((todo) => (
-            <div key={todo.id}>
-              <input
-                type="checkbox"
-                checked={todo.isDone}
-                onChange={() => handleToggleTodo(todo.id, todo.isDone)}
-              />
-              <span>{todo.id}</span> <span>{todo.title}</span>
-            </div>
-          ))}
-      </div>
-      {createDialog.isOpen && <CreateTodoDialog {...createDialog} />}
-      {shareDialog.isOpen && (
-        <ShareListDialog {...shareDialog} onShare={handleShare} />
-      )}
+      <PageHeader
+        style={{paddingTop: 0}}
+        title={list.title}
+        onBack={() => history.goBack()}
+      >
+        <Descriptions size="small" column={3}>
+          <Descriptions.Item label="Members">
+            {list.shared &&
+              list.shared.map((email) => (
+                <Tag
+                  key={email}
+                  closable={
+                    auth.currentUser.email !== email && list.uid === uid
+                  }
+                  onClose={() => handleUnshare(email)}
+                >
+                  {email}
+                </Tag>
+              ))}
+            <CreateTag key="add-new-tag" text="Add Member" onCreate={handleShare} />
+          </Descriptions.Item>
+        </Descriptions>
+        <List header={<Header onCreate={handleCreate} />} bordered>
+          {todos &&
+            todos.map((todo) => (
+              <List.Item key={todo.id}>
+                <Checkbox
+                  checked={todo.isDone}
+                  onChange={() => handleToggleTodo(todo.id, todo.isDone)}
+                >
+                  {todo.title}
+                </Checkbox>
+                <Button
+                  shape="circle"
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleRemove(todo.id)}
+                />
+              </List.Item>
+            ))}
+        </List>
+      </PageHeader>
     </AppLayout>
   );
 }

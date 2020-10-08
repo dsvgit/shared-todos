@@ -12,12 +12,12 @@ function Header({ onCreate }) {
   const [title, setTitle] = useState("");
 
   function handleCreate(title) {
-    if (title.trim() === '') {
+    if (title.trim() === "") {
       return;
     }
 
     onCreate(title);
-    setTitle('');
+    setTitle("");
   }
 
   return (
@@ -27,6 +27,7 @@ function Header({ onCreate }) {
           placeholder="Add new list..."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          onPressEnter={() => handleCreate(title)}
         />
       </Col>
       <Col>

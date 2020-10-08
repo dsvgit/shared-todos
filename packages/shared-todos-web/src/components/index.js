@@ -1,15 +1,23 @@
+import React from "react";
 import {
-  Button,
-  Layout,
-  PageHeader,
   Avatar,
-  Menu,
-  Row,
+  Button,
+  Checkbox,
   Col,
-  Typography,
-  List,
+  Descriptions,
   Input,
+  Layout,
+  List,
+  Menu,
+  PageHeader,
+  Popover,
+  Row,
+  Tag,
+  Typography,
 } from "antd";
+import CreateTag from "components/CreateTag";
+
+import "./index.css";
 
 export {
   Button,
@@ -22,4 +30,9 @@ export {
   Typography,
   List,
   Input,
+  Checkbox,
+  Popover,
+  Descriptions,
+  Tag,
+  CreateTag,
 };
