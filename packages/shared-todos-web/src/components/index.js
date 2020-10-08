@@ -14,6 +14,7 @@ import {
   Row,
   Tag,
   Typography,
+  Dropdown,
 } from "antd";
 import CreateTag from "components/CreateTag";
 
@@ -35,4 +36,5 @@ export {
   Descriptions,
   Tag,
   CreateTag,
+  Dropdown,
 };

@@ -44,7 +44,7 @@ function Header({ onCreate }) {
     <Row gutter={16}>
       <Col flex={1}>
         <Input
-          placeholder="Add new list..."
+          placeholder="Add new todo..."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onPressEnter={() => handleCreate(title)}
@@ -115,48 +115,44 @@ function TodosPage() {
   }
 
   return (
-    <AppLayout title="todos">
-      <PageHeader
-        style={{paddingTop: 0}}
-        title={list.title}
-        onBack={() => history.goBack()}
-      >
-        <Descriptions size="small" column={3}>
-          <Descriptions.Item label="Members">
-            {list.shared &&
-              list.shared.map((email) => (
-                <Tag
-                  key={email}
-                  closable={
-                    auth.currentUser.email !== email && list.uid === uid
-                  }
-                  onClose={() => handleUnshare(email)}
-                >
-                  {email}
-                </Tag>
-              ))}
-            <CreateTag key="add-new-tag" text="Add Member" onCreate={handleShare} />
-          </Descriptions.Item>
-        </Descriptions>
-        <List header={<Header onCreate={handleCreate} />} bordered>
-          {todos &&
-            todos.map((todo) => (
-              <List.Item key={todo.id}>
-                <Checkbox
-                  checked={todo.isDone}
-                  onChange={() => handleToggleTodo(todo.id, todo.isDone)}
-                >
-                  {todo.title}
-                </Checkbox>
-                <Button
-                  shape="circle"
-                  icon={<DeleteOutlined />}
-                  onClick={() => handleRemove(todo.id)}
-                />
-              </List.Item>
+    <AppLayout title={`List: ${list.title || ''}`} onBack={() => history.goBack()}>
+      <Descriptions size="small">
+        <Descriptions.Item label="Members">
+          {list.shared &&
+            list.shared.map((email) => (
+              <Tag
+                key={email}
+                closable={auth.currentUser.email !== email && list.uid === uid}
+                onClose={() => handleUnshare(email)}
+              >
+                {email}
+              </Tag>
             ))}
-        </List>
-      </PageHeader>
+          <CreateTag
+            key="add-new-tag"
+            text="Add Member"
+            onCreate={handleShare}
+          />
+        </Descriptions.Item>
+      </Descriptions>
+      <List header={<Header onCreate={handleCreate} />} bordered>
+        {todos &&
+          todos.map((todo) => (
+            <List.Item key={todo.id}>
+              <Checkbox
+                checked={todo.isDone}
+                onChange={() => handleToggleTodo(todo.id, todo.isDone)}
+              >
+                {todo.title}
+              </Checkbox>
+              <Button
+                shape="circle"
+                icon={<DeleteOutlined />}
+                onClick={() => handleRemove(todo.id)}
+              />
+            </List.Item>
+          ))}
+      </List>
     </AppLayout>
   );
 }

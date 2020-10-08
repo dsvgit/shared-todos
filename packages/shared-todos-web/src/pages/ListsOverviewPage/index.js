@@ -61,7 +61,7 @@ function ListsOverviewPage() {
   }
 
   return (
-    <AppLayout title="lists overview">
+    <AppLayout title="My Todo lists" doShowSettings doShowAvatar>
       <List header={<Header onCreate={handleCreate} />} bordered>
         {lists &&
           lists.map((item) => (
