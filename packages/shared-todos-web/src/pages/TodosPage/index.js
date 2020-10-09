@@ -41,7 +41,7 @@ function Header({ onCreate }) {
   }
 
   return (
-    <Row gutter={16}>
+    <Row style={{ flexWrap: "nowrap" }} gutter={16}>
       <Col flex={1}>
         <Input
           placeholder="Add new todo..."
@@ -115,7 +115,10 @@ function TodosPage() {
   }
 
   return (
-    <AppLayout title={`List: ${list.title || ''}`} onBack={() => history.goBack()}>
+    <AppLayout
+      title={`List: ${list.title || ""}`}
+      onBack={() => history.goBack()}
+    >
       <Descriptions size="small">
         <Descriptions.Item label="Members">
           {list.shared &&

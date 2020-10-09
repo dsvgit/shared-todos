@@ -21,7 +21,7 @@ function Header({ onCreate }) {
   }
 
   return (
-    <Row gutter={16}>
+    <Row style={{ flexWrap: "nowrap" }} gutter={16}>
       <Col flex={1}>
         <Input
           placeholder="Add new list..."
